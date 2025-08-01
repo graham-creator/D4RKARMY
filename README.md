@@ -1,4 +1,3 @@
-
 ## DARKARMY Menu:
 
 - Information Gathering
@@ -93,7 +92,7 @@
 
 This Tool Must Run As ROOT !!!
 
-`git clone https://github.com/0x4ritra/DARKARMY.git`
+`git clone https://github.com/graham-creator/D4RKARMY.git`
 
 `cd DARKARMY`
 
@@ -103,6 +102,28 @@ This Tool Must Run As ROOT !!!
   
 That's it. You can execute tool by typing **DARKARMY**
 
+---
+
+### Updated Installation for DARKARMYv2
+
+If you encounter permission issues or want to install DARKARMYv2 in a custom directory, you can specify the install directory using the environment variable `DARKARMY_INSTALL_DIR`.
+
+Example:
+
+```bash
+export DARKARMY_INSTALL_DIR=$HOME/darkarmy
+bash install.sh
+```
+
+This will install DARKARMYv2 into the specified directory.
+
+After installation, run the tool by typing:
+
+```bash
+DARKARMY
+```
+
+---
 
 ## Installation
 
@@ -112,7 +133,7 @@ Open [Termux](https://play.google.com/store/apps/details?id=com.termux)
 
 `pkg install python`
 
-`git clone https://github.com/0x4ritra/DARKARMY.git`
+`git clone https://github.com/graham-creator/D4RKARMY.git`
 
 `cd DARKARMY`
 
@@ -124,11 +145,4 @@ Open [Termux](https://play.google.com/store/apps/details?id=com.termux)
   
   ### Development By :
 
-Developer / Author: [0X4ritra](https://github.com/0x4ritra)
-
-
-### <h2 align="center">😈 Visit 😈  </h2>
-
-<p align="center">
-<a href="https://dark4rmy.in/"><img title="D4RK4RMY" src="https://img.shields.io/badge/D4RK4RMY-%23E4405F.svg?&style=for-the-badge&logo=web&logoColor=white"></a>
-</p>
+Developer / Author: [graham-creator](https://github.com/graham-creator)
