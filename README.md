@@ -137,9 +137,9 @@ Open [Termux](https://play.google.com/store/apps/details?id=com.termux)
 
 `cd DARKARMY`
 
-`chmod +x darkarmy.py`
+`chmod +x darkarmy_v2.py`
 
-`python2 darkarmy.py`
+`python3 darkarmy_v2.py`
 
 
   
