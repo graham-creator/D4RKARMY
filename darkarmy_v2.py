@@ -4,18 +4,10 @@ DARKARMY v2 - Refactored version of darkarmy.py for Python 3
 Coded by Amn3sia - be honored
 """
 
-
 import sys
 import os
 import time
-import re
-import socket
-import logging
 import subprocess
-import requests
-from urllib.parse import urlparse
-from threading import Thread
-from queue import Queue
 
 # Color utility for terminal output
 class Colors:
@@ -25,6 +17,8 @@ class Colors:
     OKGREEN = '\033[92m'
     WARNING = '\033[93m'
     FAIL = '\033[91m'
+    RED = '\033[91m'  # Red color
+    PURPLE = '\033[95m'  # Magenta/Purple color
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
@@ -32,595 +26,590 @@ class Colors:
 def color_text(text, color):
     return f"{color}{text}{Colors.ENDC}"
 
-# Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-# Directories and shells lists (same as original)
-DIRECTORIES = [
-    '/uploads/', '/upload/', '/files/', '/resume/', '/resumes/', '/documents/', '/docs/', '/pictures/',
-    '/file/', '/Upload/', '/Uploads/', '/Resume/', '/UsersFiles/', '/Usersiles/', '/usersFiles/',
-    '/Users_Files/', '/UploadedFiles/', '/Uploaded_Files/', '/uploadedfiles/', '/uploadedFiles/',
-    '/hpage/', '/admin/upload/', '/admin/uploads/', '/admin/resume/', '/admin/resumes/', '/admin/pictures/',
-    '/pics/', '/photos/', '/Alumni_Photos/', '/alumni_photos/', '/AlumniPhotos/', '/users/'
-]
-
-SHELLS = [
-    'wso.php', 'shell.php', 'an.php', 'hacker.php', 'lol.php', 'up.php', 'cp.php', 'upload.php',
-    'sh.php', 'pk.php', 'mad.php', 'x00x.php', 'worm.php', '1337worm.php', 'config.php', 'x.php', 'haha.php'
-]
-
-YES = {'yes', 'y', 'ye', 'Y'}
-NO = {'no', 'n'}
-
-
 def clear_screen():
-    """Clear the terminal screen."""
     if os.name == 'posix':
         subprocess.run(['clear'])
-    elif os.name == 'nt':
+    else:
         subprocess.run(['cls'])
 
+def logo():
+    # Print the logo with the specific part in purple/magenta
+    purple_text = color_text(""" _(`-')               (`-') <-.(`-') (`-')  _    (`-') <-. (`-')             
+( (OO ).->         <-.(OO )  __( OO) (OO ).-/ <-.(OO )    \(OO )_   """, Colors.PURPLE)
+    red_text = color_text("""   .->   
+ \    .'_    .---. ,------,)'-'. ,--./ ,---.  ,------,),--./  ,-.) ,--.'  ,-.
+ '`'-..__)  / .  | |   /`. '|  .'   /| \ /`.\ |   /`. '|   `.'   |(`-')'.'  /
+ |  |  ' | / /|  | |  |_.' ||      /)'-'|_.' ||  |_.' ||  |'.'|  |(OO \    / 
+ |  |  / :/ '-'  |||  .   .'|  .   '(|  .-.  ||  .   .'|  |   |  | |  /   /) 
+ |  '-'  /`---|  |'|  |\  \ |  |\   \|  | |  ||  |\  \ |  |   |  | `-/   /`  
+ `------'     `--' `--' '--'`--' '--'`--' `--'`--' '--'`--'   `--'   `--'    
+                          """, Colors.RED)
+    print(purple_text + red_text)
 
-def unique(seq):
-    """Return a list of unique items, preserving order."""
-    seen = set()
-    return [x for x in seq if not (x in seen or seen.add(x))]
-
-
-def get_input(prompt, validation_type=None):
-    """Get user input safely with optional validation."""
-    while True:
-        try:
-            user_input = input(prompt).strip()
-            if validation_type == "integer":
-                if not user_input.isdigit():
-                    print("Invalid input. Please enter a number.")
-                    continue
-                return int(user_input)
-            elif validation_type == "yes_no":
-                if user_input.lower() not in YES and user_input.lower() not in NO:
-                    print("Invalid input. Please enter 'y' or 'n'.")
-                    continue
-                return user_input
-            elif validation_type == "ip_address":
-                try:
-                    socket.inet_aton(user_input)
-                    return user_input
-                except socket.error:
-                    print("Invalid IP address format.")
-                    continue
-            elif validation_type == "port_range":
-                if re.match(r"^\d+-\d+$", user_input):
-                    start, end = map(int, user_input.split('-'))
-                    if 0 <= start <= 65535 and 0 <= end <= 65535 and start <= end:
-                        return user_input
-                    else:
-                        print("Invalid port range. Ports must be between 1-65535 and start must be less than or equal to end.")
-                else:
-                    print("Invalid port range format. Use start-end (e.g., 1-1000).")
-                continue
-            return user_input
-        except (KeyboardInterrupt, EOFError):
-            print("\nExiting...")
-            sys.exit(0)
-
-
-def updatedarkarmy():
-    import os
-    print("This Tool is Only Available for Linux and Similar Systems.")
-    choiceupdate = input("Continue Y / N: ")
-    if choiceupdate.lower() in ['yes', 'y']:
-        try:
-            if os.path.exists("DARKARMY"):
-                subprocess.run(["darkarmy"], check=True)
-            else:
-                subprocess.run(["git", "clone", "https://github.com/graham-creator/D4RKARMY.git"], check=True)
-                subprocess.run(["sudo", "bash", "./update.sh"], cwd="DARKARMY", check=True)
-                subprocess.run(["darkarmy"], check=True)
-        except subprocess.CalledProcessError as e:
-            logging.error(f"Command failed: {e}")
-        except FileNotFoundError:
-            logging.error("Required command not found. Make sure git and darkarmy are installed and in your PATH.")
-
-def sitechecker():
-    print("[*] Running Shell Checker (Placeholder)")
-    # Add actual implementation here, e.g., subprocess.run(["python", "shell_checker.py"])
-
-def poet():
-    print("[*] Running POET (Placeholder)")
-    # Add actual implementation here
-
-def weeman():
-    print("[*] Running Phishing Framework (Weeman) (Placeholder)")
-    # Add actual implementation here, e.g., subprocess.run(["weeman"])
-
-def postexp():
-    clear_screen()
-    print(color_text("   {1}--Shell Checker", Colors.OKGREEN))
-    print(color_text("   {2}--POET", Colors.OKGREEN))
-    print(color_text("   {3}--Phishing Framework \n", Colors.OKGREEN))
-    print(color_text("   {99}-Return to main menu \n\n ", Colors.FAIL))
-    choice11 = get_input(color_text("DARKARMY~# ", Colors.BOLD), validation_type="integer")
-    clear_screen()
-    if choice11 == 1:
-        sitechecker()
-    elif choice11 == 2:
-        poet()
-    elif choice11 == 3:
-        weeman()
-    elif choice11 == 99:
-        menu()
-
-def passwd() -> None:
-    """Password attack menu with input validation."""
-    print(color_text("   {1}--Cupp ", Colors.OKGREEN))
-    print(color_text("   {2}--Ncrack \n ", Colors.OKGREEN))
-    print(color_text("   {99}-Back To Main Menu \n", Colors.FAIL))
-    choice3 = get_input(color_text("DARKARMY~# ", Colors.BOLD), validation_type="integer")
-    if choice3 == 1:
-        clear_screen()
-        cupp()
-    elif choice3 == 2:
-        clear_screen()
-        ncrack()
-    elif choice3 == 99:
-        clear_screen()
-        menu()
-    elif choice3 == 3:
-        fb()
-    else:
-        menu()
-
-def fb():
-    print("[*] Running fb (Placeholder)")
-
-def cupp():
-    print("[*] Running cupp (Placeholder)")
-
-def ncrack():
-    print("[*] Running ncrack (Placeholder)")
-
-def setoolkit():
-    import os
-    print("The Social-Engineer Toolkit is an open-source penetration testing framework")
-    choice = input("y / n :")
-    if choice.lower() in ['yes', 'y']:
-        try:
-            if os.path.exists("social-engineer-toolkit"):
-                subprocess.run(["python", "social-engineer-toolkit/setup.py"], check=True)
-            else:
-                subprocess.run(["git", "clone", "https://github.com/trustedsec/social-engineer-toolkit.git"], check=True)
-                subprocess.run(["python", "social-engineer-toolkit/setup.py"], check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"Error during setoolkit installation: {e}")
-    elif choice.lower() in ['no', 'n']:
-        clear_screen()
-        info()
-    elif choice == "":
-        menu()
-    else:
-        menu()
-
-def ssls():
-    import os
-    print("sslstrip is a MITM tool that implements Moxie Marlinspike's SSL stripping attacks.")
-    choice = input("y / n :")
-    if choice.lower() in ['yes', 'y']:
-        try:
-            if os.path.exists("sslstrip"):
-                subprocess.run(["python", "sslstrip/setup.py"], check=True)
-            else:
-                subprocess.run(["git", "clone", "https://github.com/moxie0/sslstrip.git"], check=True)
-                subprocess.run(["sudo", "apt-get", "install", "-y", "python-twisted-web"], check=True)
-                subprocess.run(["python", "sslstrip/setup.py"], check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"Error during sslstrip installation: {e}")
-    elif choice.lower() in ['no', 'n']:
-        snif()
-    elif choice == "":
-        menu()
-    else:
-        menu()
-
-def pisher():
-    import os
-    print("HTTP server for phishing in python. (and framework) Usually you will want to run Weeman with DNS spoof attack. (see dsniff, ettercap).")
-    choice = input("Install Weeman ? Y / N : ")
-    if choice.lower() in ['yes', 'y']:
-        try:
-            if os.path.exists("weeman"):
-                subprocess.run(["python", "weeman/weeman.py"], check=True)
-            else:
-                subprocess.run(["git", "clone", "https://github.com/samyoyo/weeman.git"], check=True)
-                subprocess.run(["python", "weeman/weeman.py"], check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"Error during weeman installation: {e}")
-    elif choice.lower() in ['no', 'n']:
-        menu()
-    else:
-        menu()
-
-def smtpsend():
-    import subprocess
+def clone_and_run(repo_url, run_cmd, cwd=None):
     try:
-        subprocess.run(["wget", "http://pastebin.com/raw/Nz1GzWDS", "--output-document=smtp.py"], check=True)
-        subprocess.run(["python", "smtp.py"], check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Error running SMTP Mailer: {e}")
-
-def Fscan(ip):
-    print(f"[*] Running Fscan on {ip} (Placeholder)")
-    # Placeholder for actual Fscan implementation
-
-def nmap():
-    import os
-    choice7 = input("continue ? Y / N : ")
-    if choice7.lower() in ['yes', 'y']:
-        try:
-            if os.path.exists("nmap"):
-                subprocess.run(["./configure"], cwd="nmap", check=True)
-                subprocess.run(["make"], cwd="nmap", check=True)
-                subprocess.run(["make", "install"], cwd="nmap", check=True)
-            else:
-                subprocess.run(["git", "clone", "https://github.com/nmap/nmap.git"], check=True)
-                subprocess.run(["./configure"], cwd="nmap", check=True)
-                subprocess.run(["make"], cwd="nmap", check=True)
-                subprocess.run(["make", "install"], cwd="nmap", check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"Error during nmap installation: {e}")
-    elif choice7.lower() in ['no', 'n']:
-        info()
-    elif choice7 == "":
-        menu()
-    else:
-        menu()
-
-def ports():
-    clear_screen()
-    target = input('Select a Target IP : ')
-    import subprocess
-    try:
-        subprocess.run(["nmap", "-O", "-Pn", target], check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Error running nmap ports scan: {e}")
-    sys.exit()
-
-def h2ip():
-    host = input("Select A Host : ")
-    import socket
-    try:
-        ips = socket.gethostbyname(host)
-        print(ips)
-    except socket.gaierror:
-        print("Invalid host or unable to resolve.")
-
-def wpue():
-    import os
-    import subprocess
-    try:
-        if os.path.exists("wpscan"):
-            target = input("Select a Wordpress target : ")
-            subprocess.run(["ruby", "wpscan/wpscan.rb", "--url", target, "--enumerate", "u"], check=True)
+        # Extract repository name from URL
+        repo_name = repo_url.rstrip('/').split('/')[-1].replace('.git', '')
+        if not os.path.exists(repo_name):
+            print(f"Cloning {repo_name}...")
+            subprocess.run(['git', 'clone', repo_url], check=True)
         else:
-            subprocess.run(["git", "clone", "https://github.com/wpscanteam/wpscan.git"], check=True)
-            target = input("Select a Wordpress target : ")
-            subprocess.run(["ruby", "wpscan/wpscan.rb", "--url", target, "--enumerate", "u"], check=True)
+            print(f"{repo_name} already exists.")
+        print(f"Running {repo_name}...")
+        subprocess.run(run_cmd, cwd=cwd or repo_name, check=True)
     except subprocess.CalledProcessError as e:
-        print(f"Error running wpue: {e}")
-
-def cmsscan():
-    import os
-    import subprocess
-    try:
-        if os.path.exists("CMSmap"):
-            target = input("select target : ")
-            subprocess.run(["sudo", "cmsmap.py", target], cwd="CMSmap", check=True)
-        else:
-            subprocess.run(["git", "clone", "https://github.com/Dionach/CMSmap.git"], check=True)
-            target = input("select target : ")
-            subprocess.run(["sudo", "cmsmap.py", target], cwd="CMSmap", check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Error running cmsscan: {e}")
-
-def XSStrike():
-    import os
-    import subprocess
-    try:
-        if os.path.exists("XSStrike"):
-            subprocess.run(["pip", "install", "-r", "XSStrike/requirements.txt"], check=True)
-            subprocess.run(["python", "XSStrike/xsstrike.py"], check=True)
-        else:
-            subprocess.run(["sudo", "rm", "-rf", "XSStrike"], check=True)
-            subprocess.run(["git", "clone", "https://github.com/UltimateHackers/XSStrike.git"], check=True)
-            subprocess.run(["pip", "install", "-r", "XSStrike/requirements.txt"], check=True)
-            subprocess.run(["python", "XSStrike/xsstrike.py"], check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Error running XSStrike: {e}")
-
-def doork():
-    import os
-    import subprocess
-    choice = input("Continue Y / N: ")
-    if choice.lower() in ['yes', 'y']:
-        try:
-            subprocess.run(["pip", "install", "beautifulsoup4", "requests"], check=True)
-            if os.path.exists("doork"):
-                target = input("Target : ")
-                subprocess.run(["python", "doork/doork.py", "-t", target, "-o", "log.log"], check=True)
-            else:
-                subprocess.run(["git", "clone", "https://github.com/AeonDave/doork"], check=True)
-                target = input("Target : ")
-                subprocess.run(["python", "doork/doork.py", "-t", target, "-o", "log.log"], check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"Error running doork: {e}")
-
-def scanusers():
-    site = input('Enter a website : ')
-    try:
-        users = site
-        if 'http://www.' in users:
-            users = users.replace('http://www.', '')
-        if 'http://' in users:
-            users = users.replace('http://', '')
-        if '.' in users:
-            users = users.replace('.', '')
-        if '-' in users:
-            users = users.replace('-', '')
-        if '/' in users:
-            users = users.replace('/', '')
-        while len(users) > 2:
-            print(users)
-            import urllib.request
-            resp = urllib.request.urlopen(site + '/cgi-sys/guestbook.cgi?user=%s' % users).read().decode()
-            if 'invalid username' not in resp.lower():
-                print("\tFound -> %s" % users)
-            users = users[:-1]
+        print(f"Error running {repo_name}: {e}")
+    except FileNotFoundError as e:
+        print(f"Command not found error while running {repo_name}: {e}")
     except Exception as e:
-        print(f"Error scanning users: {e}")
+        print(f"Unexpected error running {repo_name}: {e}")
+    input("Press Enter to continue...")
 
-def crips():
-    print("[*] Running crips (Placeholder)")
+# Tool functions with repo URLs and run commands
+def lazyrecon():
+    clone_and_run("https://github.com/nahamsec/lazyrecon.git", ["bash", "lazyrecon.sh"], cwd="lazyrecon")
+    menu()
 
-def webhack():
-    print("[*] Running webhack (Placeholder)")
+def redhawk():
+    clone_and_run("https://github.com/Tuhinshubhra/RED_HAWK.git", ["php", "RED_HAWK.php"], cwd="RED_HAWK")
+    menu()
 
-def wire():
-    print(color_text("   {1}--reaver ", Colors.OKGREEN))
-    print(color_text("   {2}--pixiewps", Colors.OKGREEN))
-    print(color_text("   {3}--Bluetooth Honeypot GUI Framework", Colors.OKGREEN))
-    print(color_text("   {4}--Fluxion\n", Colors.OKGREEN))
-    print(color_text("   {99}-Back To The Main Menu \n\n", Colors.FAIL))
-    choice4 = get_input(color_text("DARKARMY~# ", Colors.BOLD), validation_type="integer")
-    if choice4 == 1:
-        clear_screen()
-        reaver()
-    elif choice4 == 2:
-        clear_screen()
-        pixiewps()
-    elif choice4 == 3:
-        bluepot()
-    elif choice4 == 4:
-        fluxion()
-    elif choice4 == 99:
-        menu()
+def th3inspector():
+    clone_and_run("https://github.com/Moham3dRiahi/Th3inspector.git", ["bash", "Th3inspector.sh"], cwd="Th3inspector")
+    menu()
 
-def reaver():
-    print("[*] Running Reaver (Placeholder)")
+def wpgrabinfo():
+    clone_and_run("https://github.com/Moham3dRiahi/WPGrabInfo.git", ["python3", "wpgrabinfo.py"], cwd="WPGrabInfo")
+    menu()
 
-def pixiewps():
-    print("[*] Running Pixiewps (Placeholder)")
+def billcipher():
+    clone_and_run("https://github.com/GitHackTools/BillCipher.git", ["python3", "BillCipher.py"], cwd="BillCipher")
+    menu()
 
-def bluepot():
-    print("[*] Running Bluetooth Honeypot GUI Framework (Bluepot) (Placeholder)")
+def gasmask():
+    clone_and_run("https://github.com/twelvesec/gasmask.git", ["python3", "gasmask.py"], cwd="gasmask")
+    menu()
 
-def fluxion():
-    print("[*] Running Fluxion (Placeholder)")
+def webkiller():
+    clone_and_run("https://github.com/ultrasecurity/webkiller.git", ["python3", "webkiller.py"], cwd="webkiller")
+    menu()
 
-def exp():
-    print(color_text("   {1}--ATSCAN", Colors.OKGREEN))
-    print(color_text("   {2}--sqlmap", Colors.OKGREEN))
-    print(color_text("   {3}--Shellnoob", Colors.OKGREEN))
-    print(color_text("   {4}--commix", Colors.OKGREEN))
-    print(color_text("   {5}--FTP Auto Bypass", Colors.OKGREEN))
-    print(color_text("   {6}--jboss-autopwn", Colors.OKGREEN))
-    print(color_text("   {7}--Blind SQL Automatic Injection And Exploit", Colors.OKGREEN))
-    print(color_text("   {8}--Bruteforce the Android Passcode given the hash and salt", Colors.OKGREEN))
-    print(color_text("   {9}--Joomla SQL injection Scanner \n ", Colors.OKGREEN))
-    print(color_text("   {99}-Go Back To Main Menu \n\n", Colors.FAIL))
-    choice5 = get_input(color_text("DARKARMY~# ", Colors.BOLD), validation_type="integer")
-    if choice5 == 2:
-        clear_screen()
-        sqlmap()
-    elif choice5 == 1:
-        clear_screen()
-        atscan()
-    elif choice5 == 3:
-        clear_screen()
-        shellnoob()
-    elif choice5 == 4:
-        clear_screen()
-        commix()
-    elif choice5 == 5:
-        clear_screen()
-        gabriel()
-    elif choice5 == 6:
-        clear_screen()
-        jboss()
-    elif choice5 == 7:
-        clear_screen()
-        bsqlbf()
-    elif choice5 == 8:
-        androidhash()
-    elif choice5 == 9:
-        cmsfew()
-    elif choice5 == 99:
-        menu()
+def fbi():
+    clone_and_run("https://github.com/KnightSec-Official/FBI.git", ["python3", "fbi.py"], cwd="FBI")
+    menu()
 
-def sqlmap():
-    print("[*] Running SQLMap (Placeholder)")
+def dtect():
+    clone_and_run("https://github.com/hudacbr/D-TECT.git", ["python3", "dtect.py"], cwd="D-TECT")
+    menu()
 
-def atscan():
-    print("[*] Running ATSCAN (Placeholder)")
+def userrecon():
+    clone_and_run("https://github.com/issamelferkh/userrecon.git", ["python3", "userrecon.py"], cwd="userrecon")
+    menu()
 
-def shellnoob():
-    print("[*] Running Shellnoob (Placeholder)")
+def owscan():
+    clone_and_run("https://github.com/Gameye98/OWScan.git", ["python", "owscan.py"], cwd="OWScan")
+    menu()
+
+def clickjacking_tester():
+    clone_and_run("https://github.com/D4Vinci/Clickjacking-Tester.git", ["python", "clickjacking.py"], cwd="Clickjacking-Tester")
+    menu()
+
+def tm_scanner():
+    clone_and_run("https://github.com/TechnicalMujeeb/TM-scanner.git", ["python", "tm_scanner.py"], cwd="TM-scanner")
+    menu()
+
+def androbugs():
+    clone_and_run("https://github.com/AndroBugs/AndroBugs_Framework.git", ["python", "androbugs.py"], cwd="AndroBugs_Framework")
+    menu()
+
+def scanqli():
+    clone_and_run("https://github.com/bambish/ScanQLi.git", ["python", "scanqli.py"], cwd="ScanQLi")
+    menu()
 
 def commix():
-    print("[*] Running Commix (Placeholder)")
+    clone_and_run("https://github.com/commixproject/commix.git", ["python", "commix.py"], cwd="commix")
+    menu()
 
-def gabriel():
-    print("[*] Running FTP Auto Bypass (Gabriel) (Placeholder)")
+def wpseku():
+    clone_and_run("https://github.com/m4ll0k/WPSeku.git", ["python", "wpseku.py"], cwd="WPSeku")
+    menu()
 
-def jboss():
-    print("[*] Running JBoss Autopwn (Placeholder)")
+def routersploit():
+    clone_and_run("https://github.com/threat9/routersploit.git", ["python", "rsf.py"], cwd="routersploit")
+    menu()
 
-def bsqlbf():
-    print("[*] Running Blind SQL Automatic Injection And Exploit (Placeholder)")
+def nikto():
+    clone_and_run("https://github.com/sullo/nikto.git", ["perl", "program/nikto.pl"], cwd="nikto")
+    menu()
 
-def androidhash():
-    print("[*] Running Android Hash Bruteforce (Placeholder)")
+def reaver():
+    clone_and_run("https://github.com/t6x/reaver-wps-fork-t6x.git", ["reaver"])
+    menu()
 
-def cmsfew():
-    print("[*] Running Joomla SQL Injection Scanner (Placeholder)")
+def pixiewps():
+    clone_and_run("https://github.com/wiire/pixiewps.git", ["pixiewps"])
+    menu()
 
-def snif():
-    print(color_text("   {1}--Setoolkit ", Colors.OKGREEN))
-    print(color_text("   {2}--SSLtrip", Colors.OKGREEN))
-    print(color_text("   {3}--pyPISHER", Colors.OKGREEN))
-    print(color_text("   {4}--SMTP Mailer \n ", Colors.OKGREEN))
-    print(color_text("   {99}-Back To Main Menu \n\n", Colors.FAIL))
-    choice6 = get_input(color_text("DARKARMY~# ", Colors.BOLD), validation_type="integer")
-    if choice6 == 1:
-        clear_screen()
-        setoolkit()
-    elif choice6 == 2:
-        clear_screen()
-        ssls()
-    elif choice6 == 3:
-        clear_screen()
-        pisher()
-    elif choice6 == 4:
-        clear_screen()
-        smtpsend()
-    elif choice6 == 99:
-        clear_screen()
-        menu()
+def bluepot():
+    clone_and_run("https://github.com/andrewmichaelsmith/bluepot.git", [])
+    menu()
 
-def dzz():
-    clear_screen()
-    aaa = input("Target IP : ")
-    Fscan(aaa)
+def arat():
+    clone_and_run("https://github.com/AhMyth/AhMyth-Android-RAT.git", ["python", "AhMyth.py"], cwd="AhMyth-Android-RAT")
+    menu()
 
-def info() -> None:
-    """Information gathering menu with input validation."""
-    print(darkarmy_logo)
-    print(color_text("  {1}--Nmap ", Colors.OKGREEN))
-    print(color_text("  {2}--Setoolkit", Colors.OKGREEN))
-    print(color_text("  {3}--Port Scanning", Colors.OKGREEN))
-    print(color_text("  {4}--Host To IP", Colors.OKGREEN))
-    print(color_text("  {5}--wordpress user", Colors.OKGREEN))
-    print(color_text("  {6}--CMS scanner", Colors.OKGREEN))
-    print(color_text("  {7}--XSStrike", Colors.OKGREEN))
-    print(color_text("  {8}--Dork - Google Dorks Passive Vulnerability Auditor ", Colors.OKGREEN))
-    print(color_text("  {9}--Scan A server's Users  ", Colors.OKGREEN))
-    print(color_text("  {10}-Crips\n  ", Colors.OKGREEN))
-    print(color_text("  {99}-Back To Main Menu \n\n", Colors.FAIL))
-    choice2 = get_input(color_text("DARKARMY~# ", Colors.BOLD), validation_type="integer")
-    if choice2 == 1:
-        clear_screen()
-        nmap()
-    elif choice2 == 2:
-        clear_screen()
-        setoolkit()
-    elif choice2 == 3:
-        clear_screen()
-        ports()
-    elif choice2 == 4:
-        clear_screen()
-        h2ip()
-    elif choice2 == 5:
-        clear_screen()
-        wpue()
-    elif choice2 == 6:
-        clear_screen()
-        cmsscan()
-    elif choice2 == 7:
-        clear_screen()
-        XSStrike()
-    elif choice2 == 8:
-        clear_screen()
-        doork()
-    elif choice2 == 9:
-        clear_screen()
-        scanusers()
-    elif choice2 == 10:
-        clear_screen()
-        crips()
-    elif choice2 == 99:
-        clear_screen()
-        menu()
-    else:
-        menu()
+def goldeneye():
+    clone_and_run("https://github.com/jseidl/GoldenEye.git", ["python", "goldeneye.py"], cwd="GoldenEye")
+    menu()
 
+def hulk():
+    clone_and_run("https://github.com/grafov/hulk.git", ["python", "hulk.py"], cwd="hulk")
+    menu()
+
+def cmseek():
+    clone_and_run("https://github.com/Tuhinshubhra/CMSeeK.git", ["python", "cmseek.py"], cwd="CMSeeK")
+    menu()
+
+def metasploit():
+    print("Metasploit installation must be done manually.")
+    input("Press Enter to continue...")
+    menu()
+
+def tmvenom():
+    clone_and_run("https://github.com/TechnicalMujeeb/tmvenom.git", ["python", "tmvenom.py"], cwd="tmvenom")
+    menu()
+
+def zarp():
+    clone_and_run("https://github.com/hatRiot/zarp.git", ["python", "zarp.py"], cwd="zarp")
+    menu()
+
+def autosploit():
+    clone_and_run("https://github.com/NullArray/AutoSploit.git", ["python", "autosploit.py"], cwd="AutoSploit")
+    menu()
+
+def eggshell():
+    clone_and_run("https://github.com/neoneggplant/EggShell.git", ["python", "eggshell.py"], cwd="EggShell")
+    menu()
+
+def brutal():
+    clone_and_run("https://github.com/Screetsec/Brutal.git", ["bash", "Brutal.sh"], cwd="Brutal")
+    menu()
+
+def setoolkit():
+    clone_and_run("https://github.com/trustedsec/social-engineer-toolkit.git", ["python", "setup.py"], cwd="social-engineer-toolkit")
+    menu()
+
+def ssls():
+    clone_and_run("https://github.com/moxie0/sslstrip.git", ["python", "setup.py"], cwd="sslstrip")
+    menu()
+
+def pyphisher():
+    clone_and_run("https://github.com/sneakerhax/PyPhisher.git", ["python", "pyphisher.py"], cwd="PyPhisher")
+    menu()
+
+def smtp_mailer():
+    clone_and_run("https://github.com/halojoy/PHP-SMTP-Mailer.git", ["python", "smtp_mailer.py"], cwd="PHP-SMTP-Mailer")
+    menu()
+
+def python_packet_sniffer():
+    clone_and_run("https://github.com/buckyroberts/Python-Packet-Sniffer.git", ["python", "sniffer.py"], cwd="Python-Packet-Sniffer")
+    menu()
+
+def androrat():
+    clone_and_run("https://github.com/warecrer/AndroRAT.git", ["python", "androRAT.py"], cwd="AndroRAT")
+    menu()
+
+def csploit():
+    clone_and_run("https://github.com/cSploit/android.git", ["python", "csploit.py"], cwd="cSploit")
+    menu()
+
+def thefatrat():
+    clone_and_run("https://github.com/Exploit-install/TheFatRat.git", ["bash", "setup.sh"], cwd="TheFatRat")
+    menu()
+
+def socialbox():
+    clone_and_run("https://github.com/Cyb0r9/SocialBox.git", ["bash", "SocialBox.sh"], cwd="SocialBox")
+    menu()
+
+def bluforce_fb():
+    clone_and_run("https://github.com/AngelSecurityTeam/BluForce-FB.git", ["python", "bluforce.py"], cwd="BluForce-FB")
+    menu()
+
+def faceboom():
+    clone_and_run("https://github.com/Oseid/FaceBoom.git", ["python", "faceboom.py"], cwd="FaceBoom")
+    menu()
+
+def instagram():
+    clone_and_run("https://github.com/Pure-L0G1C/Instagram.git", ["python", "instagram.py"], cwd="Instagram")
+    menu()
+
+def instabrute():
+    clone_and_run("https://github.com/xHak9x/instabrute.git", ["python", "instabrute.py"], cwd="instabrute")
+    menu()
+
+def brute_force_gmail():
+    clone_and_run("https://github.com/0xfff0800/Brute-force-gmail.git", ["python", "gmail.py"], cwd="Brute-force-gmail")
+    menu()
+
+def gmailbruterv2():
+    clone_and_run("https://github.com/DEMON1A/GmailBruterV2.git", ["python", "gmailbruter.py"], cwd="GmailBruterV2")
+    menu()
+
+def wpbrute():
+    clone_and_run("https://github.com/BlackXploits/WPBrute.git", ["python", "wpbrute.py"], cwd="WPBrute")
+    menu()
+
+def cpanel_bruter():
+    clone_and_run("https://github.com/imadoxhunter/Cpanel-Bruter.git", ["python", "cpanel.py"], cwd="Cpanel-Bruter")
+    menu()
+
+def rdp_brute():
+    clone_and_run("https://github.com/TheDevFromKer/RDP-Brute.git", ["python", "rdp.py"], cwd="RDP-Brute")
+    menu()
+
+def shellphish():
+    clone_and_run("https://github.com/rorizam323/shellphish.git", ["bash", "shellphish.sh"], cwd="shellphish")
+    menu()
+
+def hiddeneye():
+    clone_and_run("https://github.com/DarkSecDevelopers/HiddenEye.git", ["python", "HiddenEye.py"], cwd="HiddenEye")
+    menu()
+
+def socialfish():
+    clone_and_run("https://github.com/An0nUD4Y/SocialFish.git", ["python", "SocialFish.py"], cwd="SocialFish")
+    menu()
+
+def zphisher():
+    clone_and_run("https://github.com/htr-tech/zphisher.git", ["bash", "zphisher.sh"], cwd="zphisher")
+    menu()
+
+def blackeye():
+    clone_and_run("https://github.com/An0nUD4Y/blackeye.git", ["bash", "blackeye.sh"], cwd="blackeye")
+    menu()
+ 
 def menu():
-    while True:
-        clear_screen()
-        print(darkarmy_logo)
-        print(color_text("   [!] Coded By Amn3sia[!]", Colors.WARNING))
-        print(color_text("   {1}--Information Gathering", Colors.OKGREEN))
-        print(color_text("   {2}--Password Attacks", Colors.OKGREEN))
-        print(color_text("   {3}--Wireless Testing", Colors.OKGREEN))
-        print(color_text("   {4}--Exploitation Tools", Colors.OKGREEN))
-        print(color_text("   {5}--Sniffing & Spoofing", Colors.OKGREEN))
-        print(color_text("   {6}--Android Hacking", Colors.OKGREEN))
-        print(color_text("   {7}--Web Hacking", Colors.OKGREEN))
-        print(color_text("   {8}--Private Web Hacking", Colors.OKGREEN))
-        print(color_text("   {9}--Post Exploitation", Colors.OKGREEN))
-        print(color_text("   {0}--Update The DARKARMY", Colors.OKGREEN))
-        print(color_text("   {99}-Exit", Colors.FAIL))
-        choice = get_input(color_text("DARKARMY~# ", Colors.BOLD), validation_type="integer")
-        clear_screen()
-
+    clear_screen()
+    logo()
+    print(color_text("<--------------------------Tools Categories--------------------------------->", Colors.OKGREEN))
+    print(color_text("  {1}--Information Gathering", Colors.OKCYAN))
+    print(color_text("  {2}--Vulnerability Analysis", Colors.OKCYAN))
+    print(color_text("  {3}--Wireless Testing", Colors.OKCYAN))
+    print(color_text("  {4}--Exploitation Tools", Colors.OKCYAN))
+    print(color_text("  {5}--Sniffing & Spoofing", Colors.OKCYAN))
+    print(color_text("  {6}--Android Hacking", Colors.OKCYAN))
+    print(color_text("  {7}--Brute Force Tools", Colors.OKCYAN))
+    print(color_text("  {8}--Phishing Tools", Colors.OKCYAN))
+    print(color_text("  {9}--OS Installer", Colors.OKCYAN))
+    print(color_text("  {0}--Credits", Colors.OKCYAN))
+    print(color_text("  {99}--Exit", Colors.FAIL))
+    print(color_text("<~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~>", Colors.OKGREEN))
+    
+    try:
+        choice = int(input(color_text("DARKARMY~# ", Colors.BOLD)))
         if choice == 1:
-            info()
+            # Information Gathering Tools
+            clear_screen()
+            logo()
+            print(color_text("Information Gathering Tools:", Colors.OKGREEN))
+            print(color_text("  {1}--LazyRecon", Colors.OKCYAN))
+            print(color_text("  {2}--RED HAWK", Colors.OKCYAN))
+            print(color_text("  {3}--Th3inspector", Colors.OKCYAN))
+            print(color_text("  {4}--WPGrabInfo", Colors.OKCYAN))
+            print(color_text("  {5}--BillCipher", Colors.OKCYAN))
+            print(color_text("  {6}--Gasmask", Colors.OKCYAN))
+            print(color_text("  {7}--Webkiller", Colors.OKCYAN))
+            print(color_text("  {8}--FBI", Colors.OKCYAN))
+            print(color_text("  {9}--D-Tect", Colors.OKCYAN))
+            print(color_text("  {10}--UserRecon", Colors.OKCYAN))
+            print(color_text("  {11}--OWScan", Colors.OKCYAN))
+            print(color_text("  {99}--Back to Main Menu", Colors.FAIL))
+            sub_choice = int(input(color_text("DARKARMY~# ", Colors.BOLD)))
+            if sub_choice == 1:
+                lazyrecon()
+            elif sub_choice == 2:
+                redhawk()
+            elif sub_choice == 3:
+                th3inspector()
+            elif sub_choice == 4:
+                wpgrabinfo()
+            elif sub_choice == 5:
+                billcipher()
+            elif sub_choice == 6:
+                gasmask()
+            elif sub_choice == 7:
+                webkiller()
+            elif sub_choice == 8:
+                fbi()
+            elif sub_choice == 9:
+                dtect()
+            elif sub_choice == 10:
+                userrecon()
+            elif sub_choice == 11:
+                owscan()
+            elif sub_choice == 99:
+                menu()
+            else:
+                print(color_text("Invalid option! Please try again.", Colors.FAIL))
+                time.sleep(1)
+                menu()
         elif choice == 2:
-            passwd()
+            # Vulnerability Analysis Tools
+            clear_screen()
+            logo()
+            print(color_text("Vulnerability Analysis Tools:", Colors.OKGREEN))
+            print(color_text("  {1}--Clickjacking Tester", Colors.OKCYAN))
+            print(color_text("  {2}--TM Scanner", Colors.OKCYAN))
+            print(color_text("  {3}--AndroBugs", Colors.OKCYAN))
+            print(color_text("  {4}--ScanQLi", Colors.OKCYAN))
+            print(color_text("  {5}--Commix", Colors.OKCYAN))
+            print(color_text("  {6}--WPSeku", Colors.OKCYAN))
+            print(color_text("  {7}--RouterSploit", Colors.OKCYAN))
+            print(color_text("  {8}--Nikto", Colors.OKCYAN))
+            print(color_text("  {99}--Back to Main Menu", Colors.FAIL))
+            sub_choice = int(input(color_text("DARKARMY~# ", Colors.BOLD)))
+            if sub_choice == 1:
+                clickjacking_tester()
+            elif sub_choice == 2:
+                tm_scanner()
+            elif sub_choice == 3:
+                androbugs()
+            elif sub_choice == 4:
+                scanqli()
+            elif sub_choice == 5:
+                commix()
+            elif sub_choice == 6:
+                wpseku()
+            elif sub_choice == 7:
+                routersploit()
+            elif sub_choice == 8:
+                nikto()
+            elif sub_choice == 99:
+                menu()
+            else:
+                print(color_text("Invalid option! Please try again.", Colors.FAIL))
+                time.sleep(1)
+                menu()
         elif choice == 3:
-            wire()
+            # Wireless Testing Tools
+            clear_screen()
+            logo()
+            print(color_text("Wireless Testing Tools:", Colors.OKGREEN))
+            print(color_text("  {1}--Reaver", Colors.OKCYAN))
+            print(color_text("  {2}--Pixiewps", Colors.OKCYAN))
+            print(color_text("  {3}--BluePot", Colors.OKCYAN))
+            print(color_text("  {99}--Back to Main Menu", Colors.FAIL))
+            sub_choice = int(input(color_text("DARKARMY~# ", Colors.BOLD)))
+            if sub_choice == 1:
+                reaver()
+            elif sub_choice == 2:
+                pixiewps()
+            elif sub_choice == 3:
+                bluepot()
+            elif sub_choice == 99:
+                menu()
+            else:
+                print(color_text("Invalid option! Please try again.", Colors.FAIL))
+                time.sleep(1)
+                menu()
         elif choice == 4:
-            exp()
+            # Exploitation Tools
+            clear_screen()
+            logo()
+            print(color_text("Exploitation Tools:", Colors.OKGREEN))
+            print(color_text("  {1}--A-RAT", Colors.OKCYAN))
+            print(color_text("  {2}--GoldenEye", Colors.OKCYAN))
+            print(color_text("  {3}--Hulk", Colors.OKCYAN))
+            print(color_text("  {4}--CMSeeK", Colors.OKCYAN))
+            print(color_text("  {5}--Metasploit", Colors.OKCYAN))
+            print(color_text("  {6}--TM-Venom", Colors.OKCYAN))
+            print(color_text("  {7}--Zarp", Colors.OKCYAN))
+            print(color_text("  {8}--AutoSploit", Colors.OKCYAN))
+            print(color_text("  {9}--EggShell", Colors.OKCYAN))
+            print(color_text("  {10}--Brutal", Colors.OKCYAN))
+            print(color_text("  {99}--Back to Main Menu", Colors.FAIL))
+            sub_choice = int(input(color_text("DARKARMY~# ", Colors.BOLD)))
+            if sub_choice == 1:
+                arat()
+            elif sub_choice == 2:
+                goldeneye()
+            elif sub_choice == 3:
+                hulk()
+            elif sub_choice == 4:
+                cmseek()
+            elif sub_choice == 5:
+                metasploit()
+            elif sub_choice == 6:
+                tmvenom()
+            elif sub_choice == 7:
+                zarp()
+            elif sub_choice == 8:
+                autosploit()
+            elif sub_choice == 9:
+                eggshell()
+            elif sub_choice == 10:
+                brutal()
+            elif sub_choice == 99:
+                menu()
+            else:
+                print(color_text("Invalid option! Please try again.", Colors.FAIL))
+                time.sleep(1)
+                menu()
         elif choice == 5:
-            snif()
+            # Sniffing & Spoofing Tools
+            clear_screen()
+            logo()
+            print(color_text("Sniffing & Spoofing Tools:", Colors.OKGREEN))
+            print(color_text("  {1}--SEToolkit", Colors.OKCYAN))
+            print(color_text("  {2}--SSLStrip", Colors.OKCYAN))
+            print(color_text("  {3}--PyPhisher", Colors.OKCYAN))
+            print(color_text("  {4}--SMTP Mailer", Colors.OKCYAN))
+            print(color_text("  {5}--Python Packet Sniffer", Colors.OKCYAN))
+            print(color_text("  {99}--Back to Main Menu", Colors.FAIL))
+            sub_choice = int(input(color_text("DARKARMY~# ", Colors.BOLD)))
+            if sub_choice == 1:
+                setoolkit()
+            elif sub_choice == 2:
+                ssls()
+            elif sub_choice == 3:
+                pyphisher()
+            elif sub_choice == 4:
+                smtp_mailer()
+            elif sub_choice == 5:
+                python_packet_sniffer()
+            elif sub_choice == 99:
+                menu()
+            else:
+                print(color_text("Invalid option! Please try again.", Colors.FAIL))
+                time.sleep(1)
+                menu()
         elif choice == 6:
-            webhack()
+            # Android Hacking Tools
+            clear_screen()
+            logo()
+            print(color_text("Android Hacking Tools:", Colors.OKGREEN))
+            print(color_text("  {1}--AndroRAT", Colors.OKCYAN))
+            print(color_text("  {2}--CSploit", Colors.OKCYAN))
+            print(color_text("  {3}--TheFatRat", Colors.OKCYAN))
+            print(color_text("  {99}--Back to Main Menu", Colors.FAIL))
+            sub_choice = int(input(color_text("DARKARMY~# ", Colors.BOLD)))
+            if sub_choice == 1:
+                androrat()
+            elif sub_choice == 2:
+                csploit()
+            elif sub_choice == 3:
+                thefatrat()
+            elif sub_choice == 99:
+                menu()
+            else:
+                print(color_text("Invalid option! Please try again.", Colors.FAIL))
+                time.sleep(1)
+                menu()
         elif choice == 7:
-            dzz()
+            # Brute Force Tools
+            clear_screen()
+            logo()
+            print(color_text("Brute Force Tools:", Colors.OKGREEN))
+            print(color_text("  {1}--SocialBox", Colors.OKCYAN))
+            print(color_text("  {2}--BluForce-FB", Colors.OKCYAN))
+            print(color_text("  {3}--FaceBoom", Colors.OKCYAN))
+            print(color_text("  {4}--Instagram", Colors.OKCYAN))
+            print(color_text("  {5}--Instabrute", Colors.OKCYAN))
+            print(color_text("  {6}--Brute-force-gmail", Colors.OKCYAN))
+            print(color_text("  {7}--GmailBruterV2", Colors.OKCYAN))
+            print(color_text("  {8}--WPBrute", Colors.OKCYAN))
+            print(color_text("  {9}--Cpanel-Bruter", Colors.OKCYAN))
+            print(color_text("  {10}--RDP-Brute", Colors.OKCYAN))
+            print(color_text("  {99}--Back to Main Menu", Colors.FAIL))
+            sub_choice = int(input(color_text("DARKARMY~# ", Colors.BOLD)))
+            if sub_choice == 1:
+                socialbox()
+            elif sub_choice == 2:
+                bluforce_fb()
+            elif sub_choice == 3:
+                faceboom()
+            elif sub_choice == 4:
+                instagram()
+            elif sub_choice == 5:
+                instabrute()
+            elif sub_choice == 6:
+                brute_force_gmail()
+            elif sub_choice == 7:
+                gmailbruterv2()
+            elif sub_choice == 8:
+                wpbrute()
+            elif sub_choice == 9:
+                cpanel_bruter()
+            elif sub_choice == 10:
+                rdp_brute()
+            elif sub_choice == 99:
+                menu()
+            else:
+                print(color_text("Invalid option! Please try again.", Colors.FAIL))
+                time.sleep(1)
+                menu()
         elif choice == 8:
-            postexp()
+            # Phishing Tools
+            clear_screen()
+            logo()
+            print(color_text("Phishing Tools:", Colors.OKGREEN))
+            print(color_text("  {1}--Shellphish", Colors.OKCYAN))
+            print(color_text("  {2}--HiddenEye", Colors.OKCYAN))
+            print(color_text("  {3}--SocialFish", Colors.OKCYAN))
+            print(color_text("  {4}--Zphisher", Colors.OKCYAN))
+            print(color_text("  {5}--Blackeye", Colors.OKCYAN))
+            print(color_text("  {99}--Back to Main Menu", Colors.FAIL))
+            sub_choice = int(input(color_text("DARKARMY~# ", Colors.BOLD)))
+            if sub_choice == 1:
+                shellphish()
+            elif sub_choice == 2:
+                hiddeneye()
+            elif sub_choice == 3:
+                socialfish()
+            elif sub_choice == 4:
+                zphisher()
+            elif sub_choice == 5:
+                blackeye()
+            elif sub_choice == 99:
+                menu()
+            else:
+                print(color_text("Invalid option! Please try again.", Colors.FAIL))
+                time.sleep(1)
+                menu()
         elif choice == 9:
-            postexp()
+            # OS Installer
+            print("OS Installer - Coming Soon!")
+            time.sleep(2)
+            menu()
         elif choice == 0:
-            updatedarkarmy()
+            # Credits
+            clear_screen()
+            logo()
+            print(color_text("Coded by Amn3sia - be honored", Colors.OKGREEN))
+            print(color_text("Visit our website: https://darkarmy.live/", Colors.OKCYAN))
+            print(color_text("GitHub: https://github.com/D4RK-4RMY/DARKARMY", Colors.OKCYAN))
+            print(color_text("Happy Hacking!", Colors.OKGREEN))
+            input("Press Enter to return to main menu...")
+            menu()
         elif choice == 99:
+            print(color_text("Exiting DARKARMY...", Colors.WARNING))
             clear_screen()
             sys.exit(0)
         else:
-            continue
+            print(color_text("Invalid option! Please try again.", Colors.FAIL))
+            time.sleep(1)
+            menu()
+    except KeyboardInterrupt:
+        print(color_text("\nExiting...", Colors.WARNING))
+        clear_screen()
+        sys.exit(0)
+    except Exception as e:
+        print(color_text(f"An error occurred: {str(e)}", Colors.FAIL))
+        time.sleep(2)
+        menu()
 
-
-darkarmy_logo = (
-    f"{Colors.WARNING}  \n"
-    f"   _(`-')               (`-') <-.(`-') (`-')  _    (`-') <-. (`-')             \n"
-    f"   (OO ).->         <-.(OO )  __( OO) (OO ).-/ <-.(OO )    \\(`-')_      .->   \n"
-    f"{Colors.FAIL}"
-    f"  \\    .'_    .---. ,------,)'-'. ,--./ ,---.  ,------,),--./  ,-.) ,--.'  ,-.\n"
-    f" '`'-..__)  / .  | |   /`. '|  .'   /| \\ /`.\ |   /`. '|   `.'   |(`-')'.'  / \n"
-    f" |  |  ' | / /|  | |  |_.' ||      /)'-'|_.' ||  |_.' ||  |'.'|  |(OO \\    /  \n"
-    f" |  |  / :/ '-'  |||  .   .'|  .   '(|  .-.  ||  .   .'|  |   |  | |  /   /) \n"
-    f" |  '-'  /`---|  |'|  |\\  \\ |  |\\   \\|  | |  ||  |\\  \\ |  |   |  | `-/   /`  \n"
-    f" `------'     `--' `--' '--'`--' '--'`--' `--'`--' '--'`--'   `--'   `--'     \n"
-    f"                                                     {Colors.ENDC}"
-)
+def main():
+    menu()
 
 if __name__ == "__main__":
-    menu()
+    main()
+
